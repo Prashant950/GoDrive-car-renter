@@ -260,7 +260,7 @@ export const getBookingConfirmationEmailTemplate = (booking) => {
               <td style="background-color: #f8fafc; padding: 24px 28px; border-top: 1px solid #e2e8f0; text-align: center;">
                 <p style="margin: 0 0 4px; color: #001f3f; font-size: 13px; font-weight: 800;">GoDrive Self Drive Car Rental</p>
                 <p style="margin: 0 0 8px; color: #64748b; font-size: 11px;">
-                  📍 Advant Navis Business Park, Sector 142, Noida (Expressway), UP 201304
+                  📍 GoDrive Self Drive, JAYPEE KENSINGTON PARK, Plot 1, Sector 133, Noida, UP 201304
                 </p>
                 <p style="margin: 0; color: #94a3b8; font-size: 11px;">
                   24×7 Roadside Emergency Helpline: <strong style="color: #001f3f;">+91 7275647029</strong>
