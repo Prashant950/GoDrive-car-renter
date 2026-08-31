@@ -208,10 +208,6 @@ export default function VehicleDetails() {
                     className="relative z-10 max-h-full max-w-full object-contain drop-shadow-xl transition-all duration-300 hover:scale-105"
                   />
                 </div>
-
-                <p className="text-center text-xs font-semibold text-slate-400">
-                  ✨ Sanitized, GPS-Tracked &amp; Roadside-Assisted Fleet Car
-                </p>
               </div>
 
               {/* Gallery Thumbnails */}
@@ -318,7 +314,7 @@ export default function VehicleDetails() {
                 <div className="space-y-2.5 pt-1 text-xs font-medium text-slate-600">
                   <div className="flex items-center gap-2.5">
                     <FiCheckCircle className="text-emerald-500 shrink-0" size={16} />
-                    <span><strong>Free Doorstep Delivery</strong> within city limits</span>
+                    <span><strong>Free Doorstep Delivery</strong> within 5 Kilometers</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <FiCheckCircle className="text-emerald-500 shrink-0" size={16} />

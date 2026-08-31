@@ -145,7 +145,7 @@ export default function Footer() {
               <div className="flex items-start gap-2.5">
                 <FiMapPin className="mt-0.5 shrink-0 text-gold-400 text-sm" />
                 <span className="text-slate-200 leading-snug">
-                  Near Sector 142 Metro Station, Sector 142, Noida, UP 201305
+                  JAYPEE KENSINGTON PARK, Plot 1, Sector 133, Noida, UP 201304
                 </span>
               </div>
               <div className="flex items-center gap-2.5">

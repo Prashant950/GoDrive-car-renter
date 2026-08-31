@@ -23,13 +23,13 @@ import { useSendContactMutation } from "../services/user/userContactApi.js";
 const initial = { name: "", email: "", phone: "", subject: "", message: "" };
 
 const MAPS_URL =
-  "https://maps.google.com/?q=Advant+Navis+Business+Park,+ADVANT+IT+PARK+PVT+LTD,+7,+EXPRESSWAY,+Sector+142,+Noida,+Uttar+Pradesh+201304";
+  "https://maps.google.com/?q=GoDrive+Self+Drive,+JAYPEE+KENSINGTON+PARK,+Plot+1,+Sector+133,+Noida,+Shahpur+Govardhanpur+Khadar,+Uttar+Pradesh+201304";
 
 const info = [
   {
     icon: FiMapPin,
     label: "Visit Us / Main Fleet Hub",
-    value: "Advant Navis Business Park, ADVANT IT PARK PVT LTD, 7, EXPRESSWAY, Sector 142, Noida, Uttar Pradesh 201304",
+    value: "GoDrive Self Drive, JAYPEE KENSINGTON PARK, Plot 1, Sector 133, Noida, Shahpur Govardhanpur Khadar, Uttar Pradesh 201304",
     link: MAPS_URL,
   },
   {
@@ -245,10 +245,10 @@ export default function Contact() {
               <div>
                 <span className="badge-navy text-xs font-bold mb-1 inline-block">Fleet Hub Location</span>
                 <h3 className="font-display text-xl sm:text-2xl font-bold text-primary-900">
-                  Advant Navis Business Park, Sector 142 Noida
+                  JAYPEE KENSINGTON PARK, Sector 133 Noida
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Conveniently situated along the Noida-Greater Noida Expressway near Sector 142 Metro Station.
+                  GoDrive Self Drive, Plot 1, Sector 133, Noida, Shahpur Govardhanpur Khadar, Uttar Pradesh 201304.
                 </p>
               </div>
 
@@ -267,8 +267,8 @@ export default function Contact() {
             {/* Embedded Responsive Map */}
             <div className="relative group overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
               <iframe
-                title="GoDrive Self Drive Advant Navis Business Park Sector 142 Noida Location"
-                src="https://maps.google.com/maps?q=Advant%20Navis%20Business%20Park,%20ADVANT%20IT%20PARK%20PVT%20LTD,%207,%20EXPRESSWAY,%20Sector%20142,%20Noida,%20Uttar%20Pradesh%20201304&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                title="GoDrive Self Drive JAYPEE KENSINGTON PARK Sector 133 Noida Location"
+                src="https://maps.google.com/maps?q=GoDrive%20Self%20Drive,%20JAYPEE%20KENSINGTON%20PARK,%20Plot%201,%20Sector%20133,%20Noida,%20Shahpur%20Govardhanpur%20Khadar,%20Uttar%20Pradesh%20201304&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 className="h-80 sm:h-96 w-full border-0"
                 loading="lazy"
               />
