@@ -135,20 +135,26 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 4: Noida Hub & Newsletter (Span 4) */}
+          {/* Col 4: Hubs & Newsletter (Span 4) */}
           <div className="lg:col-span-4 space-y-4">
             <h4 className="text-sm font-extrabold uppercase tracking-wider text-gold-400">
-              Noida Hub & Contact
+              Office Hubs & Contact
             </h4>
 
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2.5 text-xs sm:text-sm">
               <div className="flex items-start gap-2.5">
                 <FiMapPin className="mt-0.5 shrink-0 text-gold-400 text-sm" />
-                <span className="text-slate-200 leading-snug">
-                  JAYPEE KENSINGTON PARK, Plot 1, Sector 133, Noida, UP 201304
-                </span>
+                <div className="text-slate-200 leading-snug">
+                  <span className="font-semibold text-white">Head Office:</span> JAYPEE KENSINGTON PARK, Sector 133, Noida, UP 201304
+                </div>
               </div>
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-start gap-2.5">
+                <FiMapPin className="mt-0.5 shrink-0 text-gold-400 text-sm" />
+                <div className="text-slate-200 leading-snug">
+                  <span className="font-semibold text-white">Branch Office:</span> Ganesh Nagar, Bopkhel, Pune, MH 411031
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5 pt-0.5">
                 <FiPhone className="shrink-0 text-gold-400 text-sm" />
                 <a href="tel:+917275647029" className="text-slate-200 font-bold hover:text-gold-400 transition-colors">
                   +91 7275647029 (24×7)
@@ -156,7 +162,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2.5">
                 <FiClock className="shrink-0 text-emerald-400 text-sm" />
-                <span className="text-emerald-400 font-medium">Open 24 Hours · All 7 Days · Doorstep</span>
+                <span className="text-emerald-400 font-medium">Open 24 Hours · All 7 Days · Doorstep Handover</span>
               </div>
             </div>
 
@@ -198,7 +204,7 @@ export default function Footer() {
               <FiCheckCircle /> ₹500 Advance Token
             </span>
             <span className="text-white/20 hidden sm:inline">•</span>
-            <span className="text-slate-300">Noida · Delhi NCR · Doorstep Handover</span>
+            <span className="text-slate-300">Noida · Pune · Delhi NCR · Doorstep Handover</span>
           </div>
 
           <p className="text-center sm:text-right text-slate-400">

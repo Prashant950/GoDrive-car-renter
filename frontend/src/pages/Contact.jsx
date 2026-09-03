@@ -14,38 +14,84 @@ import {
   FiNavigation,
   FiCheckCircle,
   FiShield,
-  FiZap,
+  FiCompass,
 } from "react-icons/fi";
-import { FaPhoneAlt } from "react-icons/fa";
 import PageBanner from "../components/PageBanner.jsx";
 import { useSendContactMutation } from "../services/user/userContactApi.js";
 
 const initial = { name: "", email: "", phone: "", subject: "", message: "" };
 
-const MAPS_URL =
+const NOIDA_MAPS_URL =
   "https://maps.google.com/?q=GoDrive+Self+Drive,+JAYPEE+KENSINGTON+PARK,+Plot+1,+Sector+133,+Noida,+Shahpur+Govardhanpur+Khadar,+Uttar+Pradesh+201304";
+
+const PUNE_MAPS_URL =
+  "https://maps.google.com/?q=Colony+No.10,+Om+Siddhi+Colony,+Ganesh+Nagar,+Bopkhel,+Pune,+Pimpri-Chinchwad,+Maharashtra+411031,+India";
+
+const offices = [
+  {
+    id: "noida",
+    badge: "Head Office",
+    badgeColor: "bg-gold-500/10 text-gold-600 border-gold-400/40",
+    city: "Noida, Uttar Pradesh (Delhi NCR)",
+    title: "Head Office — Noida Fleet Hub",
+    address:
+      "GoDrive Self Drive, JAYPEE KENSINGTON PARK, Plot 1, Sector 133, Noida, Shahpur Govardhanpur Khadar, Uttar Pradesh 201304",
+    mapsUrl: NOIDA_MAPS_URL,
+    embedUrl:
+      "https://maps.google.com/maps?q=GoDrive%20Self%20Drive,%20JAYPEE%20KENSINGTON%20PARK,%20Plot%201,%20Sector%20133,%20Noida,%20Shahpur%20Govardhanpur%20Khadar,%20Uttar%20Pradesh%20201304&t=&z=15&ie=UTF8&iwloc=&output=embed",
+    phone: "+91 7275647029",
+    hours: "Open 24/7 · 365 Days",
+  },
+  {
+    id: "pune",
+    badge: "Branch Office",
+    badgeColor: "bg-blue-500/10 text-blue-600 border-blue-400/40",
+    city: "Pune, Maharashtra",
+    title: "Branch Office — Pune Hub",
+    address:
+      "Colony No.10, Om Siddhi Colony, Ganesh Nagar, Bopkhel, Pune, Pimpri-Chinchwad, Maharashtra 411031, India",
+    mapsUrl: PUNE_MAPS_URL,
+    embedUrl:
+      "https://maps.google.com/maps?q=Colony%20No.10,%20Om%20Siddhi%20Colony,%20Ganesh%20Nagar,%20Bopkhel,%20Pune,%20Pimpri-Chinchwad,%20Maharashtra%20411031,%20India&t=&z=15&ie=UTF8&iwloc=&output=embed",
+    phone: "+91 7275647029",
+    hours: "Open 24/7 · 365 Days",
+  },
+];
 
 const info = [
   {
     icon: FiMapPin,
-    label: "Visit Us / Main Fleet Hub",
-    value: "GoDrive Self Drive, JAYPEE KENSINGTON PARK, Plot 1, Sector 133, Noida, Shahpur Govardhanpur Khadar, Uttar Pradesh 201304",
-    link: MAPS_URL,
+    tag: "Head Office",
+    label: "Head Office — Noida Hub",
+    value:
+      "GoDrive Self Drive, JAYPEE KENSINGTON PARK, Plot 1, Sector 133, Noida, Shahpur Govardhanpur Khadar, UP 201304",
+    link: NOIDA_MAPS_URL,
+  },
+  {
+    icon: FiMapPin,
+    tag: "Branch Office",
+    label: "Branch Office — Pune Hub",
+    value:
+      "Colony No.10, Om Siddhi Colony, Ganesh Nagar, Bopkhel, Pune, Pimpri-Chinchwad, Maharashtra 411031, India",
+    link: PUNE_MAPS_URL,
   },
   {
     icon: FiPhone,
+    tag: "Support",
     label: "24×7 Phone Helpline",
     value: "+91 7275647029",
     link: "tel:+917275647029",
   },
   {
     icon: FiMail,
+    tag: "Inquiries",
     label: "Official Support Email",
     value: "hello@godriveselfdrive.com",
     link: "mailto:hello@godriveselfdrive.com",
   },
   {
     icon: FiClock,
+    tag: "Availability",
     label: "Operating Hours",
     value: "Open 24 Hours · All 7 Days · Doorstep Handover & Delivery",
   },
@@ -53,6 +99,7 @@ const info = [
 
 export default function Contact() {
   const [form, setForm] = useState(initial);
+  const [selectedOffice, setSelectedOffice] = useState("all");
   const [sendContact, { isLoading: loading }] = useSendContactMutation();
 
   const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -68,6 +115,11 @@ export default function Contact() {
     }
   };
 
+  const displayedOffices =
+    selectedOffice === "all"
+      ? offices
+      : offices.filter((o) => o.id === selectedOffice);
+
   return (
     <>
       <PageBanner
@@ -78,7 +130,7 @@ export default function Contact() {
 
       <section className="section bg-slate-50">
         <div className="container-x space-y-10">
-          {/* Main Top 2-Column Section (Aligned naturally without empty space) */}
+          {/* Main Top 2-Column Section */}
           <div className="grid gap-8 lg:grid-cols-12 items-start">
             {/* Left Info Column (5 cols) */}
             <div className="lg:col-span-5 space-y-4">
@@ -87,12 +139,12 @@ export default function Contact() {
                   Contact &amp; Support Hub
                 </h2>
                 <p className="mt-1 text-xs sm:text-sm text-slate-500 leading-relaxed">
-                  Reach us through phone, email, or visit our Noida hub. Our concierge team is on standby 24 hours a day.
+                  Reach us via phone, email, or visit our Head Office in Noida and Branch Office in Pune. Our team is available 24/7.
                 </p>
               </div>
 
               <div className="space-y-3">
-                {info.map(({ icon: Icon, label, value, link }, i) => {
+                {info.map(({ icon: Icon, tag, label, value, link }, i) => {
                   const CardWrapper = link ? "a" : "div";
                   const linkProps = link
                     ? { href: link, target: link.startsWith("http") ? "_blank" : undefined, rel: "noreferrer" }
@@ -104,7 +156,7 @@ export default function Contact() {
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
-                      transition={{ delay: i * 0.06 }}
+                      transition={{ delay: i * 0.05 }}
                     >
                       <CardWrapper
                         {...linkProps}
@@ -117,13 +169,20 @@ export default function Contact() {
                           <Icon size={18} />
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">{label}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">{label}</p>
+                            {tag && (
+                              <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                                {tag}
+                              </span>
+                            )}
+                          </div>
                           <p className="font-bold text-primary-900 text-xs sm:text-sm mt-0.5 group-hover:text-primary-800 transition-colors leading-snug">
                             {value}
                           </p>
                           {link && (
                             <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-gold-600 group-hover:text-gold-700">
-                              {label.includes("Visit") ? "View on Google Maps" : "Click to connect"} &rarr;
+                              {link.startsWith("http") ? "View on Google Maps" : "Click to connect"} &rarr;
                             </span>
                           )}
                         </div>
@@ -132,8 +191,6 @@ export default function Contact() {
                   );
                 })}
               </div>
-
-              
             </div>
 
             {/* Right Form Column (7 cols) */}
@@ -196,7 +253,7 @@ export default function Contact() {
                     name="subject"
                     value={form.subject}
                     onChange={onChange}
-                    placeholder="e.g. Noida to Agra 3-day rental"
+                    placeholder="e.g. Pune to Lonavala 3-day rental"
                   />
                 </div>
 
@@ -208,7 +265,7 @@ export default function Contact() {
                     onChange={onChange}
                     rows={4}
                     required
-                    placeholder="Tell us about the vehicle you need, travel dates, destination, or any special requests…"
+                    placeholder="Tell us about the vehicle you need, travel dates, pickup city (Noida/Delhi NCR or Pune), or any special requests…"
                     className="input resize-none"
                   />
                 </div>
@@ -239,49 +296,110 @@ export default function Contact() {
             </motion.div>
           </div>
 
-          {/* ---------------- FULL-WIDTH INTERACTIVE LOCATION & MAP SECTION ---------------- */}
-          <div className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-card space-y-5">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          {/* ---------------- FULL-WIDTH DUAL OFFICE LOCATION & INTERACTIVE MAPS SECTION ---------------- */}
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>
-                <span className="badge-navy text-xs font-bold mb-1 inline-block">Fleet Hub Location</span>
-                <h3 className="font-display text-xl sm:text-2xl font-bold text-primary-900">
-                  JAYPEE KENSINGTON PARK, Sector 133 Noida
+                <span className="badge-navy text-xs font-bold mb-1.5 inline-flex items-center gap-1.5">
+                  <FiCompass className="text-gold-400" /> Fleet Hubs &amp; Office Locations
+                </span>
+                <h3 className="font-display text-2xl sm:text-3xl font-bold text-primary-900">
+                  Visit Our Offices &amp; Fleet Hubs
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  GoDrive Self Drive, Plot 1, Sector 133, Noida, Shahpur Govardhanpur Khadar, Uttar Pradesh 201304.
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  Locate our Head Office in Noida and Branch Office in Pune on Google Maps for fast pickup, handover, or assistance.
                 </p>
               </div>
 
-              <a
-                href={MAPS_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-primary !py-2.5 !px-5 text-xs font-bold flex items-center gap-1.5 shadow-sm hover:shadow-glow-navy"
-              >
-                <FiNavigation size={14} className="text-gold-400" />
-                <span>Get Driving Directions</span>
-                <FiExternalLink size={12} />
-              </a>
+              {/* Location Switcher Tabs */}
+              <div className="flex items-center gap-1.5 bg-slate-200/80 p-1.5 rounded-2xl border border-slate-200 self-start md:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setSelectedOffice("all")}
+                  className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all ${
+                    selectedOffice === "all"
+                      ? "bg-white text-primary-900 shadow-sm"
+                      : "text-slate-600 hover:text-primary-900"
+                  }`}
+                >
+                  Both Offices ({offices.length})
+                </button>
+                {offices.map((off) => (
+                  <button
+                    key={off.id}
+                    type="button"
+                    onClick={() => setSelectedOffice(off.id)}
+                    className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all ${
+                      selectedOffice === off.id
+                        ? "bg-white text-primary-900 shadow-sm"
+                        : "text-slate-600 hover:text-primary-900"
+                    }`}
+                  >
+                    {off.badge}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Embedded Responsive Map */}
-            <div className="relative group overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-              <iframe
-                title="GoDrive Self Drive JAYPEE KENSINGTON PARK Sector 133 Noida Location"
-                src="https://maps.google.com/maps?q=GoDrive%20Self%20Drive,%20JAYPEE%20KENSINGTON%20PARK,%20Plot%201,%20Sector%20133,%20Noida,%20Shahpur%20Govardhanpur%20Khadar,%20Uttar%20Pradesh%20201304&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                className="h-80 sm:h-96 w-full border-0"
-                loading="lazy"
-              />
-              <a
-                href={MAPS_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="absolute bottom-4 right-4 flex items-center gap-2 rounded-xl bg-primary-950/95 text-white px-4 py-2.5 text-xs font-bold shadow-xl hover:bg-gold-500 hover:text-primary-950 transition-all backdrop-blur-md border border-white/10"
-              >
-                <FiNavigation size={15} className="text-gold-400 group-hover:text-primary-950" />
-                <span>Open in Google Maps</span>
-                <FiExternalLink size={13} />
-              </a>
+            {/* Office Maps Grid */}
+            <div
+              className={`grid gap-6 ${
+                displayedOffices.length === 1 ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2"
+              }`}
+            >
+              {displayedOffices.map((office) => (
+                <motion.div
+                  key={office.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.25 }}
+                  className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-card space-y-4 hover:border-gold-400/80 hover:shadow-xl transition-all flex flex-col justify-between"
+                >
+                  {/* Card Header */}
+                  <div className="space-y-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span
+                        className={`text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border ${office.badgeColor}`}
+                      >
+                        {office.badge}
+                      </span>
+                      <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
+                        <FiClock className="text-emerald-500" /> {office.hours}
+                      </span>
+                    </div>
+
+                    <h4 className="font-display text-lg sm:text-xl font-bold text-primary-900">
+                      {office.title}
+                    </h4>
+
+                    <div className="flex items-start gap-2 text-xs sm:text-sm text-slate-600">
+                      <FiMapPin className="mt-0.5 shrink-0 text-gold-500 text-sm" />
+                      <p className="leading-snug">{office.address}</p>
+                    </div>
+                  </div>
+
+                  {/* Embedded Google Map */}
+                  <div className="relative group overflow-hidden rounded-2xl border border-slate-200 shadow-inner mt-2">
+                    <iframe
+                      title={`${office.title} Location Map`}
+                      src={office.embedUrl}
+                      className="h-64 sm:h-72 w-full border-0"
+                      loading="lazy"
+                    />
+                    <a
+                      href={office.mapsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-xl bg-primary-950/90 text-white px-3 py-2 text-xs font-bold shadow-lg hover:bg-gold-500 hover:text-primary-950 transition-all backdrop-blur-md border border-white/10"
+                    >
+                      <FiNavigation size={13} className="text-gold-400 group-hover:text-primary-950" />
+                      <span>Google Maps</span>
+                      <FiExternalLink size={11} />
+                    </a>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </div>

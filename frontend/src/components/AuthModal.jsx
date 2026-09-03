@@ -48,23 +48,35 @@ export default function AuthModal() {
   const [resetPasswordMutation, { isLoading: isResettingPassword }] = useResetPasswordMutation();
 
   useEffect(() => {
-    if (open) {
-      if (mode !== "login" || !successMessage) {
-        setForm(emptyForm);
-        setLoginError(null);
-      }
-      setShowPassword(false);
-    } else {
+    if (!open) {
+      setForm(emptyForm);
       setSuccessMessage(null);
       setLoginError(null);
       setShowPassword(false);
     }
-  }, [open, mode]);
+  }, [open]);
 
   const onChange = (e) => {
     setLoginError(null);
     setSuccessMessage(null);
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+
+    if (name === "mobile") {
+      // Strictly only digits and maximum 10 digits
+      const numericOnly = value.replace(/\D/g, "").slice(0, 10);
+      setForm((f) => ({ ...f, mobile: numericOnly }));
+      return;
+    }
+
+    if (name === "identifier") {
+      // If user is typing only numbers for mobile login, cap at 10 digits
+      if (/^\d+$/.test(value)) {
+        setForm((f) => ({ ...f, identifier: value.slice(0, 10) }));
+        return;
+      }
+    }
+
+    setForm((f) => ({ ...f, [name]: value }));
   };
 
   // Handle Login or Register submit
@@ -75,7 +87,14 @@ export default function AuthModal() {
 
     try {
       if (mode === "login") {
-        const iden = form.identifier || form.email || form.mobile;
+        const iden = (form.identifier || form.email || form.mobile || "").trim();
+        // If numeric mobile was provided, ensure it is 10 digits
+        if (/^\d+$/.test(iden) && iden.length !== 10) {
+          toast.error("Mobile number exactly 10 digits ka hona chahiye");
+          setLoading(false);
+          return;
+        }
+
         const loginPayload = {
           identifier: iden,
           password: form.password,
@@ -83,8 +102,9 @@ export default function AuthModal() {
         await login(loginPayload);
         setSuccessMessage(null);
       } else if (mode === "register") {
-        if (form.mobile.trim().length < 10) {
-          toast.error("Enter a valid 10-digit mobile number");
+        const cleanMobile = (form.mobile || "").replace(/\D/g, "").trim();
+        if (cleanMobile.length !== 10) {
+          toast.error("Mobile number exactly 10 digits ka hona chahiye");
           setLoading(false);
           return;
         }
@@ -94,21 +114,22 @@ export default function AuthModal() {
           return;
         }
 
-        const registeredEmail = form.email;
+        const registeredEmail = form.email.trim();
         await register({
-          name: form.name,
-          email: form.email,
-          mobile: form.mobile,
+          name: form.name.trim(),
+          email: registeredEmail,
+          mobile: cleanMobile,
           password: form.password,
         });
 
         // After successful registration: switch to login mode with success banner & prefilled email
-        setSuccessMessage("Registration Successful! Aapka account ban gaya hai. Kripya password daal kar login karein. 🎉");
-        setForm((f) => ({
+        setSuccessMessage(`Registration Successful! Welcome email sent to ${registeredEmail}. Enter your password to log in. 🎉`);
+        setForm({
           ...emptyForm,
           identifier: registeredEmail,
+          email: registeredEmail,
           password: "",
-        }));
+        });
         setLoginError(null);
         setAuthMode("login");
       }
@@ -281,7 +302,7 @@ export default function AuthModal() {
               icon={FiMail}
               name="identifier"
               placeholder="Email address or 10-digit mobile"
-              value={form.identifier}
+              value={form.identifier || form.email || ""}
               onChange={onChange}
               required
             />
@@ -294,6 +315,7 @@ export default function AuthModal() {
                 onChange={onChange}
                 show={showPassword}
                 onToggleShow={() => setShowPassword((s) => !s)}
+                autoFocus={Boolean(form.identifier || form.email)}
                 required
               />
               <div className="mt-1.5 text-right">
@@ -369,6 +391,9 @@ export default function AuthModal() {
               placeholder="10-Digit Mobile number"
               value={form.mobile}
               onChange={onChange}
+              maxLength={10}
+              inputMode="numeric"
+              pattern="[0-9]{10}"
               required
             />
             <PasswordField
