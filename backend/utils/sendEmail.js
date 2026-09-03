@@ -7,20 +7,26 @@ import nodemailer from "nodemailer";
 export const sendEmail = async ({ to, subject, html, text }) => {
   const port = Number(process.env.EMAIL_PORT) || 465;
   const isSecure = port === 465;
+  const emailUser = (process.env.EMAIL_USER || "").trim();
+  const emailPass = (process.env.EMAIL_PASS || "").trim();
 
   const transporter = nodemailer.createTransport({
+    service: "gmail",
     host: process.env.SMTP_HOST || "smtp.gmail.com",
     port,
     secure: isSecure, // true for 465, false for 587
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: emailUser,
+      pass: emailPass,
+    },
+    tls: {
+      rejectUnauthorized: false,
     },
   });
 
   const mailOptions = {
-    from: `"GoDrive Self Drive Car Rental" <${process.env.EMAIL_USER}>`,
-    to,
+    from: `"GoDrive Self Drive Car Rental" <${emailUser}>`,
+    to: (to || "").trim(),
     subject,
     text,
     html,
@@ -255,15 +261,197 @@ export const getBookingConfirmationEmailTemplate = (booking) => {
               </td>
             </tr>
 
-            <!-- Footer -->
+            <!-- Footer with Noida Head Office & Pune Branch Office details -->
             <tr>
               <td style="background-color: #f8fafc; padding: 24px 28px; border-top: 1px solid #e2e8f0; text-align: center;">
                 <p style="margin: 0 0 4px; color: #001f3f; font-size: 13px; font-weight: 800;">GoDrive Self Drive Car Rental</p>
+                <p style="margin: 0 0 4px; color: #64748b; font-size: 11px;">
+                  🏢 <strong>Head Office:</strong> JAYPEE KENSINGTON PARK, Plot 1, Sector 133, Noida, UP 201304
+                </p>
                 <p style="margin: 0 0 8px; color: #64748b; font-size: 11px;">
-                  📍 GoDrive Self Drive, JAYPEE KENSINGTON PARK, Plot 1, Sector 133, Noida, UP 201304
+                  📍 <strong>Branch Office:</strong> Colony No.10, Om Siddhi Colony, Ganesh Nagar, Bopkhel, Pune, MH 411031
                 </p>
                 <p style="margin: 0; color: #94a3b8; font-size: 11px;">
                   24×7 Roadside Emergency Helpline: <strong style="color: #001f3f;">+91 7275647029</strong>
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>
+  `;
+};
+
+/**
+ * Luxury HTML Email Template for New User Registration Welcome
+ */
+export const getWelcomeEmailTemplate = (user) => {
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  const registeredDate = new Date(user.createdAt || Date.now()).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to GoDrive Self Drive</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; background-color: #f1f5f9; padding: 30px 0;">
+      <tr>
+        <td align="center">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 12px 40px rgba(0, 31, 63, 0.1);">
+            
+            <!-- Header with Luxury Dark Blue & Gold Banner -->
+            <tr>
+              <td align="center" style="background: linear-gradient(135deg, #001f3f 0%, #00264d 100%); padding: 38px 24px; text-align: center;">
+                <div style="background: linear-gradient(135deg, #f5a623 0%, #d97706 100%); width: 56px; height: 56px; border-radius: 16px; line-height: 56px; text-align: center; color: #001f3f; font-size: 28px; font-weight: 900; margin: 0 auto 12px; display: inline-block;">
+                  🚗
+                </div>
+                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 900; letter-spacing: 0.5px;">GoDrive Self Drive</h1>
+                <p style="margin: 6px 0 0; color: #f5a623; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">
+                  Account Created Successfully 🎉
+                </p>
+              </td>
+            </tr>
+
+            <!-- Body Content -->
+            <tr>
+              <td style="padding: 32px 28px 20px;">
+                <p style="margin: 0 0 10px; color: #0f172a; font-size: 18px; font-weight: 800;">
+                  Welcome aboard, ${user.name || "Customer"}! 👋
+                </p>
+                <p style="margin: 0 0 20px; color: #475569; font-size: 14px; line-height: 1.6;">
+                  Congratulations! Your <strong>GoDrive Self Drive</strong> account has been successfully created. You are now ready to explore our premium fleet and enjoy unlimited freedom across <strong>Delhi NCR &amp; Pune</strong>.
+                </p>
+
+                <!-- Registration Details Card -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 18px; padding: 20px 22px; margin-bottom: 24px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 12px;">
+                    <span style="font-size: 12px; font-weight: 800; color: #001f3f; text-transform: uppercase; letter-spacing: 1px;">
+                      📋 Account &amp; Profile Details
+                    </span>
+                    <span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px; text-transform: uppercase;">
+                      Active &amp; Verified 🟢
+                    </span>
+                  </div>
+
+                  <table width="100%" cellpadding="6" cellspacing="0" style="font-size: 13px; color: #334155; border-collapse: collapse;">
+                    <tr>
+                      <td style="font-weight: 600; color: #64748b; width: 38%; border-bottom: 1px solid #edf2f7;">Full Name:</td>
+                      <td style="font-weight: 800; color: #001f3f; border-bottom: 1px solid #edf2f7;">${user.name}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600; color: #64748b; border-bottom: 1px solid #edf2f7;">Email Address:</td>
+                      <td style="font-weight: 700; color: #001f3f; border-bottom: 1px solid #edf2f7;">${user.email}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 600; color: #64748b; border-bottom: 1px solid #edf2f7;">Mobile Number:</td>
+                      <td style="font-weight: 700; color: #001f3f; border-bottom: 1px solid #edf2f7;">${user.mobile}</td>
+                    </tr>
+                    ${
+                      user.city
+                        ? `
+                    <tr>
+                      <td style="font-weight: 600; color: #64748b; border-bottom: 1px solid #edf2f7;">City / Location:</td>
+                      <td style="font-weight: 700; color: #001f3f; border-bottom: 1px solid #edf2f7;">${user.city}</td>
+                    </tr>
+                    `
+                        : ""
+                    }
+                    ${
+                      user.address
+                        ? `
+                    <tr>
+                      <td style="font-weight: 600; color: #64748b; border-bottom: 1px solid #edf2f7;">Address:</td>
+                      <td style="font-weight: 600; color: #001f3f; border-bottom: 1px solid #edf2f7;">${user.address}</td>
+                    </tr>
+                    `
+                        : ""
+                    }
+                    <tr>
+                      <td style="font-weight: 600; color: #64748b;">Registered On:</td>
+                      <td style="font-weight: 700; color: #001f3f;">${registeredDate}</td>
+                    </tr>
+                  </table>
+                </div>
+
+                <!-- Why GoDrive Member Benefits Card -->
+                <div style="background: #fffbeb; border: 2px dashed #f5a623; border-radius: 18px; padding: 18px 20px; margin-bottom: 24px;">
+                  <h4 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">
+                    ✨ Your Exclusive GoDrive Privileges
+                  </h4>
+                  <table width="100%" cellpadding="6" cellspacing="0" style="font-size: 12px; color: #451a03;">
+                    <tr>
+                      <td style="width: 24px; vertical-align: top; font-size: 15px;">🪙</td>
+                      <td>
+                        <strong>Only ₹500 Advance Token:</strong> Reserve any vehicle by paying just ₹500. Pay balance at handover!
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="width: 24px; vertical-align: top; font-size: 15px;">🚚</td>
+                      <td>
+                        <strong>Doorstep Handover:</strong> Get cars delivered directly to your home, office, or airport in Delhi NCR &amp; Pune.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="width: 24px; vertical-align: top; font-size: 15px;">🛡️</td>
+                      <td>
+                        <strong>100% Comprehensive Insurance:</strong> Drive with zero stress and complete safety coverage.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="width: 24px; vertical-align: top; font-size: 15px;">🚀</td>
+                      <td>
+                        <strong>Unlimited Kilometers:</strong> Choose unlimited km packages for memorable outstation road trips.
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+
+                <!-- Easy 3-Step Booking Guide -->
+                <div style="background: #f1f5f9; border-radius: 14px; padding: 16px 20px; margin-bottom: 24px;">
+                  <p style="margin: 0 0 8px; font-size: 12px; font-weight: 800; color: #001f3f; text-transform: uppercase;">
+                    🧭 How to Book Your First Car:
+                  </p>
+                  <ol style="margin: 0; padding-left: 20px; font-size: 12px; color: #475569; line-height: 1.7;">
+                    <li><strong>Choose Vehicle:</strong> Select from SUVs, Sedans, or 7-Seaters from our fleet catalog.</li>
+                    <li><strong>Pick Dates &amp; Delivery:</strong> Select your rental duration &amp; pickup location.</li>
+                    <li><strong>Pay ₹500 Token:</strong> Complete instant online payment to confirm your booking!</li>
+                  </ol>
+                </div>
+
+                <!-- CTA Button -->
+                <div style="text-align: center; margin: 26px 0 12px;">
+                  <a href="${clientUrl}/fleet" style="background: linear-gradient(135deg, #f5a623 0%, #d97706 100%); color: #001f3f; text-decoration: none; padding: 15px 36px; border-radius: 14px; font-weight: 900; font-size: 14px; display: inline-block; box-shadow: 0 8px 24px rgba(245, 166, 35, 0.4);">
+                    Explore Fleet &amp; Book Now &rarr;
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Footer with Noida Head Office & Pune Branch Office details -->
+            <tr>
+              <td style="background-color: #f8fafc; padding: 24px 28px; border-top: 1px solid #e2e8f0; text-align: center;">
+                <p style="margin: 0 0 6px; color: #001f3f; font-size: 13px; font-weight: 800;">GoDrive Self Drive Car Rental</p>
+                <p style="margin: 0 0 4px; color: #64748b; font-size: 11px;">
+                  🏢 <strong>Head Office:</strong> JAYPEE KENSINGTON PARK, Plot 1, Sector 133, Noida, UP 201304
+                </p>
+                <p style="margin: 0 0 8px; color: #64748b; font-size: 11px;">
+                  📍 <strong>Branch Office:</strong> Colony No.10, Om Siddhi Colony, Ganesh Nagar, Bopkhel, Pune, MH 411031
+                </p>
+                <p style="margin: 0; color: #94a3b8; font-size: 11px;">
+                  📞 24×7 Concierge Helpline: <strong style="color: #001f3f;">+91 7275647029</strong> · ✉️ <a href="mailto:hello@godriveselfdrive.com" style="color: #d97706; text-decoration: none;">hello@godriveselfdrive.com</a>
                 </p>
               </td>
             </tr>

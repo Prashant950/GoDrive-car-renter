@@ -1,7 +1,7 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import User from "../../models/User.js";
 import generateToken from "../../utils/generateToken.js";
-import { sendEmail, getOtpEmailTemplate } from "../../utils/sendEmail.js";
+import { sendEmail, getOtpEmailTemplate, getWelcomeEmailTemplate } from "../../utils/sendEmail.js";
 
 const sanitize = (user) => ({
   _id: user._id,
@@ -33,8 +33,13 @@ export const register = asyncHandler(async (req, res) => {
     throw new Error("An account with that email already exists");
   }
 
-  const mobileTrimmed = mobile.trim();
-  const mobileExists = await User.findOne({ mobile: mobileTrimmed });
+  const cleanMobile = mobile.toString().replace(/\D/g, "").trim();
+  if (cleanMobile.length !== 10) {
+    res.status(400);
+    throw new Error("Mobile number exactly 10 digits ka hona chahiye");
+  }
+
+  const mobileExists = await User.findOne({ mobile: cleanMobile });
   if (mobileExists) {
     res.status(400);
     throw new Error("An account with that mobile number already exists");
@@ -47,11 +52,24 @@ export const register = asyncHandler(async (req, res) => {
     name: name.trim(),
     email: emailLower,
     password,
-    mobile: mobileTrimmed,
+    mobile: cleanMobile,
     role: assignedRole,
     address: address || "",
     city: city || "",
   });
+
+  // Send branded Welcome Email to the newly registered user
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: `🎉 Welcome to GoDrive Self Drive, ${user.name}! Account Created Successfully`,
+      text: `Welcome to GoDrive Self Drive! Your account has been created successfully.\nName: ${user.name}\nEmail: ${user.email}\nMobile: ${user.mobile}\nStart booking with only ₹500 advance token.`,
+      html: getWelcomeEmailTemplate(user),
+    });
+    console.log(`[Registration] Welcome email sent successfully to ${user.email}`);
+  } catch (emailErr) {
+    console.error(`[Registration] Failed to send welcome email to ${user.email}:`, emailErr.message);
+  }
 
   const token = generateToken(user._id);
   res.status(201).json({ token, user: sanitize(user) });
