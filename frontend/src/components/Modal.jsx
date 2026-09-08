@@ -48,7 +48,7 @@ export default function Modal({ open, onClose, title, children, maxWidth = "max-
                 </button>
               </div>
             )}
-            <div className="max-h-[80vh] overflow-y-auto">{children}</div>
+            <div className="max-h-[88vh] overflow-y-auto">{children}</div>
           </motion.div>
         </motion.div>
       )}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -27,6 +27,9 @@ import {
   FiRadio,
   FiKey,
   FiTrendingUp,
+  FiPercent,
+  FiPlus,
+  FiMinus,
 } from "react-icons/fi";
 import { FaCarSide, FaBolt, FaGasPump, FaShieldAlt, FaWind, FaCarCrash } from "react-icons/fa";
 import { BsFuelPump, BsSpeedometer2, BsSuitcase, BsShieldCheck } from "react-icons/bs";

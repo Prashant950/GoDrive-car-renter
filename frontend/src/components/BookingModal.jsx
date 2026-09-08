@@ -30,6 +30,7 @@ import {
 import { launchRazorpayCheckout } from "../utils/razorpay.js";
 import { SERVICE_TYPES, REGISTRATION_FEE } from "../utils/constants.js";
 import { formatINR, diffDays, toLocalInput, formatDateTime } from "../utils/format.js";
+import { calculateVehicleRent } from "../utils/pricingCalculator.js";
 
 const plusHours = (h) => {
   const d = new Date();
@@ -95,9 +96,12 @@ export default function BookingModal({ open, onClose, vehicle }) {
   };
 
   const days = useMemo(() => diffDays(form.startDate, form.endDate), [form.startDate, form.endDate]);
+  const pricing = useMemo(
+    () => calculateVehicleRent(vehicle, days, form.withDriver),
+    [vehicle, days, form.withDriver]
+  );
   const driverDailyRate = vehicle?.withDriverPrice ?? 800;
-  const perDay = (vehicle?.pricePerDay || 0) + (form.withDriver ? driverDailyRate : 0);
-  const estimatedTotal = perDay * days;
+  const estimatedTotal = pricing?.estimatedTotal || 0;
   const tokenAmount = REGISTRATION_FEE;
   const balanceAtHandover = Math.max(0, estimatedTotal - tokenAmount);
 
@@ -188,28 +192,48 @@ export default function BookingModal({ open, onClose, vehicle }) {
       : "Booking Confirmed";
 
   return (
-    <Modal open={open} onClose={onClose} title={title} maxWidth="max-w-xl">
+    <Modal open={open} onClose={onClose} title={title} maxWidth="max-w-xl md:max-w-3xl lg:max-w-4xl">
       {/* STEP 1 — details */}
       {step === 1 && (
-        <form onSubmit={submitDetails} className="space-y-5 p-6">
+        <form onSubmit={submitDetails} className="space-y-5 p-5 md:p-7">
           {/* Real Vehicle Showcase Card */}
-          <div className="flex items-center gap-4 rounded-2xl bg-gradient-to-r from-primary-950 to-primary-900 p-4 text-white shadow-md border border-white/10">
-            {vehicle.image && (
-              <img
-                src={vehicle.image}
-                alt={vehicle.name}
-                className="h-16 w-24 shrink-0 rounded-xl bg-white/5 object-contain p-1 border border-white/10"
-              />
-            )}
-            <div className="min-w-0 flex-1">
-              <span className="badge-gold !text-[10px] font-bold uppercase">{vehicle.category}</span>
-              <h4 className="font-display text-lg font-bold text-white truncate mt-0.5">{vehicle.name}</h4>
-              <p className="text-xs text-gold-400 font-bold mt-0.5">
-                {formatINR(vehicle.pricePerDay)}/day
-                <span className="text-[11px] text-slate-300 font-normal ml-1.5">
-                  (+{formatINR(driverDailyRate)}/day driver)
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-primary-950 via-primary-900 to-slate-900 p-4 text-white shadow-md border border-white/10">
+            <div className="flex items-center gap-4 min-w-0">
+              {vehicle.image && (
+                <img
+                  src={vehicle.image}
+                  alt={vehicle.name}
+                  className="h-16 w-24 shrink-0 rounded-xl bg-white/5 object-contain p-1 border border-white/10"
+                />
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="badge-gold !text-[10px] font-bold uppercase">{vehicle.category}</span>
+                  {pricing?.savings > 0 && (
+                    <span className="badge-green !text-[10px] font-extrabold flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      ⚡ {pricing.tierName} ({pricing.discountPercent}% OFF)
+                    </span>
+                  )}
+                </div>
+                <h4 className="font-display text-lg font-bold text-white truncate mt-0.5">{vehicle.name}</h4>
+              </div>
+            </div>
+
+            <div className="flex sm:flex-col items-baseline sm:items-end justify-between border-t sm:border-t-0 border-white/10 pt-2 sm:pt-0 shrink-0">
+              <div className="flex items-baseline gap-2">
+                <span className="text-base sm:text-lg font-black text-gold-400">
+                  {formatINR(pricing?.effectiveDailyRate || vehicle.pricePerDay)}/day
                 </span>
-              </p>
+                {pricing?.savings > 0 && (
+                  <span className="text-xs text-slate-400 line-through">
+                    {formatINR(pricing.baseDailyRate)}/day
+                  </span>
+                )}
+              </div>
+              <span className="text-[11px] text-slate-300 font-normal">
+                (+{formatINR(driverDailyRate)}/day driver)
+              </span>
             </div>
           </div>
 
@@ -218,54 +242,58 @@ export default function BookingModal({ open, onClose, vehicle }) {
             <p className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-slate-400">
               Customer Details
             </p>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
               <ReadOnly icon={FiUser} label="Name" value={user?.name} />
               <ReadOnly icon={FiPhone} label="Mobile" value={user?.mobile} />
               <ReadOnly icon={FiMail} label="Email" value={user?.email} />
-              <ReadOnly icon={FiCreditCard} label="Selected Vehicle" value={vehicle.name} />
+              <ReadOnly icon={FiCreditCard} label="Vehicle" value={vehicle.name} />
             </div>
           </div>
 
-          <div>
-            <label className="label">Service Type</label>
-            <select name="serviceType" value={form.serviceType} onChange={onChange} className="input">
-              {SERVICE_TYPES.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
+          {/* Service Type & Driving Mode in responsive 2-col on Laptop */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="label">Service Type</label>
+              <select name="serviceType" value={form.serviceType} onChange={onChange} className="input">
+                {SERVICE_TYPES.map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="label">Driving Mode</label>
+              <div className="grid grid-cols-2 gap-2.5">
+                <DriverChoice
+                  active={!form.withDriver}
+                  onClick={() => setForm((f) => ({ ...f, withDriver: false }))}
+                  title="Self Drive"
+                  sub="₹0 extra driver fee"
+                />
+                <DriverChoice
+                  active={form.withDriver}
+                  onClick={() => setForm((f) => ({ ...f, withDriver: true }))}
+                  title="With Driver"
+                  sub={`+${formatINR(driverDailyRate)}/day`}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Custom Date & Time Pickers with 12-Hour AM/PM */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <CustomDateTimePicker
-              label="Pickup Date & Time"
-              value={form.startDate}
-              onChange={handleStartDateChange}
-              minDate={new Date()}
-            />
-            <CustomDateTimePicker
-              label="Return Date & Time"
-              value={form.endDate}
-              onChange={handleEndDateChange}
-              minDate={new Date(form.startDate)}
-            />
-          </div>
-
-          {/* Driver option */}
-          <div>
-            <label className="label">Driving Mode</label>
-            <div className="grid grid-cols-2 gap-3">
-              <DriverChoice
-                active={!form.withDriver}
-                onClick={() => setForm((f) => ({ ...f, withDriver: false }))}
-                title="Self Drive"
-                sub="₹0 extra driver fee"
+          <div className="space-y-2.5">
+            <div className="grid gap-4 md:grid-cols-2">
+              <CustomDateTimePicker
+                label="Pickup Date & Time"
+                value={form.startDate}
+                onChange={handleStartDateChange}
+                minDate={new Date()}
               />
-              <DriverChoice
-                active={form.withDriver}
-                onClick={() => setForm((f) => ({ ...f, withDriver: true }))}
-                title="With Driver"
-                sub={`+${formatINR(driverDailyRate)}/day`}
+              <CustomDateTimePicker
+                label="Return Date & Time"
+                value={form.endDate}
+                onChange={handleEndDateChange}
+                minDate={new Date(form.startDate)}
               />
             </div>
           </div>
@@ -311,13 +339,34 @@ export default function BookingModal({ open, onClose, vehicle }) {
 
           {/* Clear Token vs Total Breakdown */}
           <div className="rounded-2xl border-2 border-dashed border-gold-400/60 bg-gradient-to-br from-gold-500/10 via-white to-primary-50/50 p-4 shadow-sm">
+            {pricing?.savings > 0 && (
+              <div className="mb-2.5 flex items-center justify-between rounded-xl bg-emerald-500/15 border border-emerald-500/25 px-3 py-1.5 text-xs text-emerald-800 font-bold">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  ⚡ {pricing.tierName} ({pricing.discountPercent}% OFF)
+                </span>
+                <span className="text-emerald-700 font-black">You Save {formatINR(pricing.savings)}</span>
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
               <div>
                 <span className="text-xs text-slate-500 font-medium">
                   {vehicle.name} · {days} {days > 1 ? "Days" : "Day"} ({form.withDriver ? "With Chauffeur" : "Self Drive"})
                 </span>
-                <p className="text-base font-black text-primary-900">
-                  Total Rent: {formatINR(estimatedTotal)}
+                <div className="flex items-baseline gap-2">
+                  <p className="text-lg font-black text-primary-900">
+                    Total: {formatINR(estimatedTotal)}
+                  </p>
+                  {pricing?.savings > 0 && (
+                    <span className="text-xs text-slate-400 line-through font-semibold">
+                      {formatINR(pricing.standardTotalWithoutDiscount)}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-600 font-medium mt-0.5">
+                  Calculation: {formatINR(pricing.effectiveDailyRate)}/day × {days} days = {formatINR(pricing.totalVehicleRent)}
+                  {form.withDriver ? ` + (${formatINR(driverDailyRate)}/day × ${days}d driver = ${formatINR(pricing.driverTotal)})` : ""}
                 </p>
               </div>
 
