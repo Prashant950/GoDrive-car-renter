@@ -26,8 +26,15 @@ const vehicleSchema = new mongoose.Schema(
     year: { type: Number, default: new Date().getFullYear() },
     mileage: { type: String, default: "" }, // e.g. "20 km/l"
 
-    // Pricing & Duration choice
-    pricePerDay: { type: Number, required: true }, // Rate entered
+    // Pricing & Duration choice (Tiered duration discounts from rate sheet)
+    pricePerDay: { type: Number, required: true }, // 0-3 Days (Base Rate)
+    price3to7Days: { type: Number, default: 0 }, // 3-7 Days (Per Day)
+    price7to15Days: { type: Number, default: 0 }, // 7-15 Days (Per Day)
+    price15to20Days: { type: Number, default: 0 }, // 15-20 Days (Per Day)
+    price20to29Days: { type: Number, default: 0 }, // 20-29 Days (Per Day)
+    price1to3Months: { type: Number, default: 0 }, // 1-3 Months (Per Month)
+    price3to6Months: { type: Number, default: 0 }, // 3-6 Months (Per Month)
+    priceMoreThan6Months: { type: Number, default: 0 }, // More Than 6 Months (Per Month)
     priceDuration: {
       type: String,
       enum: ["24 Hours / Per Day", "1 Week", "1 Month"],

@@ -1,7 +1,12 @@
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import connectDB from "./config/db.js";
 import { notFound, errorHandler } from "./middleware/error.js";
@@ -38,6 +43,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
 
 // ---- Health check ----
