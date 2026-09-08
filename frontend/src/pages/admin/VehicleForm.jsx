@@ -141,10 +141,10 @@ export default function VehicleForm() {
 
       if (editing) {
         await updateVehicle({ id, formData: fd }).unwrap();
-        toast.success("Vehicle updated successfully (Saved to Cloudinary & DB) ✅");
+        toast.success("Vehicle updated successfully✅");
       } else {
         await createVehicle(fd).unwrap();
-        toast.success("Vehicle added successfully (Saved to Cloudinary & DB) ✅");
+        toast.success("Vehicle added successfully✅");
       }
       navigate("/admin/vehicles");
     } catch (err) {
